@@ -732,6 +732,24 @@
       "lastUpdated": "2026-02-10T01:17:08+03:00"
     },
     {
+      "id": "screen-shot-and-record",
+      "name": "ScreenShot & Record in Hyprland",
+      "version": "1.0.0",
+      "official": false,
+      "author": "Pulsar",
+      "description": "A screenshot plugin with OCR, Google Lens integration, and screen recording. Only Support Hyprland.",
+      "repository": "https://github.com/Pulsar33550336/pulsar-ns-plugins",
+      "minNoctaliaVersion": "3.6.0",
+      "license": "GPL-3.0-or-later",
+      "tags": [
+        "Bar",
+        "Panel",
+        "Utility",
+        "Hyprland"
+      ],
+      "lastUpdated": "2026-03-06T07:43:39-05:00"
+    },
+    {
       "id": "screenshot",
       "name": "Screenshot",
       "version": "1.0.1",
