@@ -2,7 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.Services.UI
-import "Ui.js" as Ui
+import "lib/Ui.js" as Ui
 
 Item {
   id: root
@@ -29,7 +29,15 @@ Item {
                                          : configuredVideosPath.startsWith("~/")
                                            ? `${homeDir}/${configuredVideosPath.slice(2)}`
                                            : configuredVideosPath
-  readonly property int pollIntervalMs: Math.max(750, Number(settings.pollIntervalMs ?? defaults.pollIntervalMs ?? 2500))
+  readonly property int minimumPollIntervalMs: 750
+  readonly property int defaultPollIntervalMs: 2500
+  readonly property int defaultWebsocketPort: 4455
+  readonly property int actionRefreshDelayMs: 900
+  readonly property int shutdownConfirmDelayMs: 250
+  readonly property int displayTickMs: 1000
+  readonly property int successToastDurationMs: 3200
+  readonly property int errorToastDurationMs: 4200
+  readonly property int pollIntervalMs: Math.max(minimumPollIntervalMs, Number(settings.pollIntervalMs ?? defaults.pollIntervalMs ?? defaultPollIntervalMs))
   readonly property string leftClickAction: settings.leftClickAction ?? defaults.leftClickAction ?? "panel"
   readonly property string launchBehavior: settings.launchBehavior ?? defaults.launchBehavior ?? "minimized-to-tray"
   readonly property string barLabelMode: settings.barLabelMode ?? defaults.barLabelMode ?? "short-label"
@@ -54,7 +62,7 @@ Item {
   property bool actionBusy: false
 
   property bool websocketConfigAvailable: false
-  property int websocketPort: 4455
+  property int websocketPort: defaultWebsocketPort
   property string websocketPassword: ""
   property bool managedObsLaunch: false
   property var obsProbeCallbacks: []
@@ -104,14 +112,14 @@ Item {
   function loadWebsocketConfig() {
     try {
       const parsed = JSON.parse(websocketConfigFile.text())
-      const configuredPort = Number(parsed?.server_port ?? 4455)
+      const configuredPort = Number(parsed?.server_port ?? defaultWebsocketPort)
       const validPort = configuredPort > 0 && Math.floor(configuredPort) === configuredPort
 
-      websocketPort = validPort ? configuredPort : 4455
+      websocketPort = validPort ? configuredPort : defaultWebsocketPort
       websocketPassword = String(parsed?.server_password || "")
       websocketConfigAvailable = parsed?.server_enabled === true && validPort
     } catch (error) {
-      websocketPort = 4455
+      websocketPort = defaultWebsocketPort
       websocketPassword = ""
       websocketConfigAvailable = false
     }
@@ -393,7 +401,7 @@ Item {
       root.openVideos()
     } : null
 
-    ToastService.showNotice(translated.title, translated.body, "", 3200, actionLabel, actionCallback)
+    ToastService.showNotice(translated.title, translated.body, "", successToastDurationMs, actionLabel, actionCallback)
   }
 
   function showProcessErrorToast(detail) {
@@ -403,7 +411,7 @@ Item {
       pluginApi.tr("toast.error.title"),
       body,
       "",
-      4200
+      errorToastDurationMs
     )
   }
 
@@ -413,7 +421,7 @@ Item {
         pluginApi.tr("toast.qt_websockets_missing.title"),
         transportUnavailableBody(),
         "",
-        4200
+        errorToastDurationMs
       )
       return
     }
@@ -423,7 +431,7 @@ Item {
         pluginApi.tr("toast.websocket_config_missing.title"),
         transportUnavailableBody(),
         "",
-        4200
+        errorToastDurationMs
       )
       return
     }
@@ -470,15 +478,15 @@ Item {
     })
   }
 
-  function startOutputLaunch(launchArgs, launchEvent) {
+  function launchObsForOutputStart(startArgs, startedLaunchEvent) {
     managedObsLaunch = autoCloseManagedObs
     saveManagedLaunchState()
-    Quickshell.execDetached(["obs", "--minimize-to-tray"].concat(launchArgs ?? []))
-    showActionToast({ event: launchEvent })
+    Quickshell.execDetached(["obs", "--minimize-to-tray"].concat(startArgs ?? []))
+    showActionToast({ event: startedLaunchEvent })
     finishAction()
   }
 
-  function maybeQuitManagedObs(stopEvent, stopAutoCloseEvent, openVideosOnStop) {
+  function finishOutputStop(stopEvent, autoClosedStopEvent, openVideosOnStop) {
     if (!managedObsLaunch) {
       showActionToast({
         event: stopEvent,
@@ -506,7 +514,7 @@ Item {
         }
 
         showActionToast({
-          event: closed ? stopAutoCloseEvent : stopEvent,
+          event: closed ? autoClosedStopEvent : stopEvent,
           openVideos: openVideosOnStop,
         })
         finishAction()
@@ -520,7 +528,7 @@ Item {
     })
   }
 
-  function toggleOutput(launchArgs, launchEvent, statusRequest, stopRequest, startRequest, startEvent, stopEvent, stopAutoCloseEvent, openVideosOnStop) {
+  function toggleOutput(startArgs, startedLaunchEvent, statusRequestType, stopRequestType, startRequestType, startedEvent, stoppedEvent, autoClosedStoppedEvent, openVideosOnStop) {
     if (!beginAction()) {
       return
     }
@@ -529,7 +537,7 @@ Item {
       obsRunning = running
 
       if (!running) {
-        startOutputLaunch(launchArgs, launchEvent)
+        launchObsForOutputStart(startArgs, startedLaunchEvent)
         return
       }
 
@@ -539,18 +547,18 @@ Item {
         return
       }
 
-      requestObs(statusRequest, {}, function(status) {
-        const stopping = status?.outputActive ?? false
-        const requestType = stopping ? stopRequest : startRequest
+      requestObs(statusRequestType, {}, function(status) {
+        const outputActive = status?.outputActive ?? false
+        const requestType = outputActive ? stopRequestType : startRequestType
 
         requestObs(requestType, {}, function() {
-          if (!stopping) {
-            showActionToast({ event: startEvent })
+          if (!outputActive) {
+            showActionToast({ event: startedEvent })
             finishAction()
             return
           }
 
-          maybeQuitManagedObs(stopEvent, stopAutoCloseEvent, openVideosOnStop)
+          finishOutputStop(stoppedEvent, autoClosedStoppedEvent, openVideosOnStop)
         }, function(error) {
           showProcessErrorToast(error)
           finishAction(false)
@@ -689,7 +697,7 @@ Item {
   Loader {
     id: websocketLoader
     active: true
-    source: "ObsWebSocketTransport.qml"
+    source: "lib/ObsWebSocketTransport.qml"
 
     onStatusChanged: {
       root.updateTransportCredentials()
@@ -707,7 +715,7 @@ Item {
 
     onLoadFailed: function() {
       root.websocketConfigAvailable = false
-      root.websocketPort = 4455
+      root.websocketPort = root.defaultWebsocketPort
       root.websocketPassword = ""
       root.updateTransportCredentials()
     }
@@ -729,7 +737,7 @@ Item {
 
   Timer {
     id: actionRefreshTimer
-    interval: 900
+    interval: root.actionRefreshDelayMs
     running: false
     repeat: false
     onTriggered: root.refresh()
@@ -750,7 +758,7 @@ Item {
 
   Timer {
     id: shutdownConfirmTimer
-    interval: 250
+    interval: root.shutdownConfirmDelayMs
     running: false
     repeat: false
 
@@ -768,7 +776,7 @@ Item {
 
   Timer {
     id: displayTimer
-    interval: 1000
+    interval: root.displayTickMs
     running: false
     repeat: true
 
@@ -787,11 +795,11 @@ Item {
       }
 
       if (root.recording) {
-        root.displayRecordDurationMs += 1000
+        root.displayRecordDurationMs += root.displayTickMs
       }
 
       if (root.streaming) {
-        root.displayStreamDurationMs += 1000
+        root.displayStreamDurationMs += root.displayTickMs
       }
     }
   }

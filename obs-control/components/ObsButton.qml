@@ -2,7 +2,7 @@ import QtQuick
 import Quickshell
 import qs.Commons
 import qs.Widgets
-import "Ui.js" as Ui
+import "../lib/Ui.js" as Ui
 
 NIconButtonHot {
   id: root

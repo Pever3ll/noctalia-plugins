@@ -5,6 +5,15 @@ import "Hash.js" as Hash
 Item {
   id: root
 
+  readonly property int handshakeTimeoutMs: 1500
+  readonly property int helloOpCode: 0
+  readonly property int identifyOpCode: 1
+  readonly property int identifiedOpCode: 2
+  readonly property int requestOpCode: 6
+  readonly property int requestResponseOpCode: 7
+  readonly property int rpcVersion: 1
+  readonly property int noEventSubscriptions: 0
+
   property url url: ""
   property string password: ""
   property bool identified: false
@@ -58,7 +67,7 @@ Item {
     while (queuedRequests.length > 0) {
       const request = queuedRequests.shift()
       socket.sendTextMessage(JSON.stringify({
-        op: 6,
+        op: requestOpCode,
         d: {
           requestType: request.requestType,
           requestId: request.requestId,
@@ -121,8 +130,8 @@ Item {
 
   function handleHello(payload) {
     const identify = {
-      rpcVersion: 1,
-      eventSubscriptions: 0,
+      rpcVersion: rpcVersion,
+      eventSubscriptions: noEventSubscriptions,
     }
 
     const auth = payload?.authentication
@@ -132,7 +141,7 @@ Item {
     }
 
     socket.sendTextMessage(JSON.stringify({
-      op: 1,
+      op: identifyOpCode,
       d: identify,
     }))
   }
@@ -154,7 +163,7 @@ Item {
   Timer {
     id: handshakeTimeout
 
-    interval: 1500
+    interval: root.handshakeTimeoutMs
     running: false
     repeat: false
 
@@ -197,19 +206,19 @@ Item {
         return
       }
 
-      if (parsed.op === 0) {
+      if (parsed.op === root.helloOpCode) {
         root.handleHello(parsed.d)
         return
       }
 
-      if (parsed.op === 2) {
+      if (parsed.op === root.identifiedOpCode) {
         handshakeTimeout.stop()
         root.identified = true
         root.flushQueuedRequests()
         return
       }
 
-      if (parsed.op === 7) {
+      if (parsed.op === root.requestResponseOpCode) {
         root.handleResponse(parsed.d)
       }
     }

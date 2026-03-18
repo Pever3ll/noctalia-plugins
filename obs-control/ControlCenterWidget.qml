@@ -1,4 +1,5 @@
 import QtQuick
+import "components" as Components
 
 Item {
   id: root
@@ -13,7 +14,7 @@ Item {
   implicitWidth: root.showShortcut ? button.implicitWidth : 0
   implicitHeight: root.showShortcut ? button.implicitHeight : 0
 
-  ObsButton {
+  Components.ObsButton {
     id: button
 
     anchors.fill: parent

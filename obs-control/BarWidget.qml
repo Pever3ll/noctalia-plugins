@@ -4,7 +4,7 @@ import Quickshell
 import qs.Commons
 import qs.Services.UI
 import qs.Widgets
-import "Ui.js" as Ui
+import "lib/Ui.js" as Ui
 
 Item {
   id: root
