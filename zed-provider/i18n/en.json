@@ -1,0 +1,7 @@
+{
+  "launcher": {
+    "command_description": "Search your projects",
+    "open_folder": "Open {path}",
+    "search_folder": "Search: {path}"
+  }
+}
