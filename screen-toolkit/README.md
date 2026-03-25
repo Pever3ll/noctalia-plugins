@@ -46,34 +46,29 @@ Record a selected region as MP4 or GIF (GIF limited to ~15s). Optional system au
 Webcam Mirror:
 Floating webcam preview window. Can be moved, resized, and flipped horizontally.
 
-## Requirements:
-grim, slurp, wl-clipboard, tesseract, imagemagick, zbar, curl, translate-shell, wf-recorder, ffmpeg
-
+Requirements:
+grim, slurp, wl-clipboard, tesseract, imagemagick, zbar, curl, translate-shell, wl-screenrec, ffmpeg
 For GIF recording: gifski
 
 ## Install packages:
 
 Arch Linux:
-```bash
-sudo pacman -S grim slurp wl-clipboard tesseract tesseract-data-eng imagemagick zbar curl translate-shell wf-recorder ffmpeg
+sudo pacman -S grim slurp wl-clipboard tesseract tesseract-data-eng imagemagick zbar curl translate-shell wl-screenrec ffmpeg
 yay -S gifski
 ```
 
 Debian / Ubuntu:
-```bash
-sudo apt install grim slurp wl-clipboard tesseract-ocr tesseract-ocr-eng imagemagick zbar-tools curl translate-shell wf-recorder ffmpeg
+sudo apt install grim slurp wl-clipboard tesseract-ocr tesseract-ocr-eng imagemagick zbar-tools curl translate-shell wl-screenrec ffmpeg
 cargo install gifski
 ```
 
 Fedora:
-```bash
-sudo dnf install grim slurp wl-clipboard tesseract tesseract-langpack-eng ImageMagick zbar curl translate-shell wf-recorder ffmpeg
+sudo dnf install grim slurp wl-clipboard tesseract tesseract-langpack-eng ImageMagick zbar curl translate-shell wl-screenrec ffmpeg
 cargo install gifski
 ```
 
 openSUSE:
-```bash
-sudo zypper install grim slurp wl-clipboard tesseract-ocr tesseract-ocr-traineddata-english ImageMagick zbar curl translate-shell wf-recorder ffmpeg
+sudo zypper install grim slurp wl-clipboard tesseract-ocr tesseract-ocr-traineddata-english ImageMagick zbar curl translate-shell wl-screenrec ffmpeg
 cargo install gifski
 ```
 
@@ -83,7 +78,7 @@ Add to your configuration.nix or home.nix:
 ```bash
 environment.systemPackages = with pkgs; [
   grim slurp wl-clipboard tesseract imagemagick zbar curl
-  translate-shell wf-recorder ffmpeg gifski
+  translate-shell wl-screenrec ffmpeg gifski
 ];
 ```
 

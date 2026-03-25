@@ -15,6 +15,7 @@ Item {
     property string pendingRecordFormat: "gif"
     property bool pendingRecordAudioOut: false
     property bool pendingRecordAudioIn: false
+    property bool pendingRecordCursor: false
     property string pendingTool: ""
 
     // ── Sync state to pluginSettings so Panel can read without mainInstance ──
@@ -530,7 +531,7 @@ Item {
             var localY = Math.round(root._regionY / scale)
             root.isRunning = false
             root.activeTool = "record"
-            recordOverlay.startRecording(region, root.pendingRecordFormat, root.pendingRecordAudioOut, root.pendingRecordAudioIn, localX, localY)
+            recordOverlay.startRecording(region, root.pendingRecordFormat, root.pendingRecordAudioOut, root.pendingRecordAudioIn, root.pendingRecordCursor)
         }
     }
 
@@ -641,11 +642,12 @@ Item {
         measureOverlay.show()
     }
 
-    function runRecord(format, audioOut, audioIn) {
+    function runRecord(format, audioOut, audioIn, cursor) {
         if (root.isRunning || recordOverlay.isRecording || recordOverlay.isConverting) return
         root.pendingRecordFormat   = format   || "gif"
         root.pendingRecordAudioOut = audioOut === true
         root.pendingRecordAudioIn  = audioIn  === true
+        root.pendingRecordCursor   = cursor   === true
         _runSlurpTool("record")
     }
 

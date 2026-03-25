@@ -211,6 +211,7 @@ Item {
     property string selectedRecordFormat: "gif"
     property bool recordAudioOutput: false
     property bool recordAudioInput: false
+    property bool recordCursor: false
 
     function triggerFocused() {
         var t = root.toolDefs[root.focusedTool].tool
@@ -443,6 +444,18 @@ Item {
                             onEntered: TooltipService.show(micArea, pluginApi?.tr("tooltips.microphone"))
                             onExited: TooltipService.hide() }
                     }
+                    Rectangle {
+                        height: 26; width: cursorIcon.implicitWidth + cursorLabel.implicitWidth + Style.marginM * 2 + Style.marginS + 4; radius: Style.radiusS
+                        color: root.recordCursor ? Color.mPrimary : (cursorArea.containsMouse ? Color.mHover : Color.mSurfaceVariant)
+                        Row { anchors.centerIn: parent; spacing: 4
+                            NIcon { id: cursorIcon; icon: "pointer"; color: root.recordCursor ? Color.mOnPrimary : Color.mOnSurface; scale: 0.8 }
+                            NText { id: cursorLabel; text: pluginApi?.tr("panel.cursor"); color: root.recordCursor ? Color.mOnPrimary : Color.mOnSurface; pointSize: Style.fontSizeXS; font.weight: root.recordCursor ? Font.Bold : Font.Normal }
+                        }
+                        MouseArea { id: cursorArea; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
+                            onClicked: root.recordCursor = !root.recordCursor
+                            onEntered: TooltipService.show(cursorArea, pluginApi?.tr("tooltips.cursor"))
+                            onExited: TooltipService.hide() }
+                    }
                 }
 
                 Rectangle {
@@ -455,7 +468,7 @@ Item {
                         NText { text: pluginApi?.tr("panel.record"); color: recStartBtn.containsMouse ? Color.mOnPrimary : Color.mPrimary; font.weight: Font.Bold; pointSize: Style.fontSizeS }
                     }
                     MouseArea { id: recStartBtn; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
-                        onClicked: root.mainInstance?.runRecord(root.selectedRecordFormat, root.recordAudioOutput, root.recordAudioInput) }
+                        onClicked: root.mainInstance?.runRecord(root.selectedRecordFormat, root.recordAudioOutput, root.recordAudioInput, root.recordCursor) }
                 }
             }
 
