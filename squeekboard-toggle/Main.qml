@@ -20,7 +20,7 @@ Item {
 
     Timer {
         id: pollTimer
-        interval: 2000
+        interval: 3500
         running: true
         repeat: true
         triggeredOnStart: true
