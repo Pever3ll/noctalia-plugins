@@ -86,7 +86,7 @@
     {
       "id": "calendar-widget",
       "name": "Desktop Calendar",
-      "version": "1.0.3",
+      "version": "1.0.4",
       "official": false,
       "author": "Simon",
       "description": "Monthly calendar with today highlighted.",
@@ -97,7 +97,7 @@
         "Desktop",
         "Utility"
       ],
-      "lastUpdated": "2026-03-22T07:33:17+01:00"
+      "lastUpdated": "2026-04-01T06:30:52+02:00"
     },
     {
       "id": "calibre-provider",
@@ -622,7 +622,7 @@
     {
       "id": "music-search",
       "name": "Music Search",
-      "version": "1.2.0",
+      "version": "1.2.1",
       "official": false,
       "author": "kevichi7",
       "description": "Search YouTube, play audio in the background with mpv, and save favorites into a persistent library.",
@@ -636,7 +636,7 @@
         "Audio",
         "Music"
       ],
-      "lastUpdated": "2026-03-26T14:09:00+08:00"
+      "lastUpdated": "2026-04-01T18:13:47+08:00"
     },
     {
       "id": "netbird",
